@@ -1,4 +1,4 @@
-# amicoNODDI
+# amico-noddi
 
 Containerized wrapper to fit NODDI with AMICO.
 
