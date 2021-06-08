@@ -10,7 +10,17 @@ RUN apt-get update && \
     pip install wheel && \
     pip install python-spams==2.6.1.11 dmri-amico==1.2.10
 
-RUN mkdir -p /opt/scripts
+from python:3.8.6-slim
+
+COPY --from=builder /opt/venv /opt/venv
+
+RUN apt-get update && \
+    apt-get install -y \
+               libblas-dev \
+               liblapack-dev \
+               gfortran && \
+    mkdir -p /opt/scripts
+
 COPY amico_init.py run.pl run_noddi.py /opt/scripts/
 RUN chmod -R +rx /opt/scripts
 

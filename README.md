@@ -2,6 +2,27 @@
 
 Containerized wrapper to fit NODDI with AMICO.
 
+Inputs:
+  * DWI data in the format `/path/to/dwi.[nii.gz, bvec, bval]`
+  * Brain mask (.nii.gz)
+
+Output is NODDI metrics computed via AMICO, and a pickle file produced by AMICO:
+  * FIT_ICVF.nii.gz
+  * FIT_OD.nii.gz
+  * FIT_ISOVF.nii.gz
+  * FIT_dir.nii.gz
+  * config.pickle
+
+Example usage:
+
+```
+docker run -v /tmp:/tmp -v $PWD:/data/input --rm -it amico-noddi:latest \
+    --dwi-root /data/input/dwi \
+    --brain-mask /data/input/brain_mask.nii.gz \
+    --output-root /data/input/AMICO/AMICO_ \
+    --num-threads 2
+```
+
 
 ## Installed dependencies (see links for licensing info)
 
