@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import multiprocessing
 import os
 import textwrap
 
@@ -46,9 +47,10 @@ subject_dir = args.subject_dir
 num_threads = args.num_threads
 
 # Threading environment variables must be set before importing amico
-if (num_threads > 0):
-    os.environ['OMP_NUM_THREADS'] = str(num_threads)
-    os.environ['MKL_NUM_THREADS'] = str(num_threads)
+# We set these to 1 and control threads within AMICO, this makes CPU usage
+# better track the maximum number of threads
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
 
 import amico
 
@@ -64,7 +66,8 @@ ae.set_model('NODDI')
 
 if (num_threads > 0):
     ae.CONFIG['solver_params']['numThreads'] = num_threads
-
+else:
+    ae.CONFIG['solver_params']['numThreads'] = multiprocessing.cpu_count()
 
 ae.generate_kernels()
 ae.load_kernels()
