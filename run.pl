@@ -10,6 +10,7 @@ use File::Spec;
 use File::Basename;
 use Getopt::Long;
 
+my $b0Thresh = 10;
 my $numThreads = 1;
 my $workingDir = "";
 
@@ -32,6 +33,9 @@ my $usage = qq{
    --num-threads
      Maximum number of CPU threads to use. This will be used to set environment variables limiting threads
      for OMP and MKL (default = ${numThreads}). Set to 0 to bypass this step and rely on software defaults.
+
+   --b0-threshold
+     Threshold for considering measurements b=0 (default = $b0Thresh).
 
    --work-dir
      Temp directory to copy source data and do processing. Defaults to a directory created at run time under
@@ -69,6 +73,7 @@ my ($brainMask, $dwiRoot, $outputRoot);
 
 # Parse args
 GetOptions("dwi-root=s" => \$dwiRoot,
+           "b0-threshold=f" => \$b0Thresh,
            "brain-mask=s" => \$brainMask,
            "num-threads=i" => \$numThreads,
            "output-root=s" => \$outputRoot,
@@ -103,21 +108,13 @@ foreach my $inputExt ("nii.gz", "bval", "bvec") {
 (-f $brainMask) or die("\nCannot find brain mask: $brainMask\n");
 system("cp ${brainMask} ${workingSubjectDir}/MASK.nii.gz");
 
-if ($numThreads == 0) {
-    print "Maximum number of threads not set\n";
-}
-else {
-    $ENV{'OMP_NUM_THREADS'} = $numThreads;
-    $ENV{'MKL_NUM_THREADS'} = $numThreads;
-}
-
 my ($outputFileRoot, $outputDir) = fileparse($outputRoot);
 
 if (! -d $outputDir) {
     make_path("$outputDir");
 }
 
-my $amicoExit = system("/opt/scripts/run_noddi.py --study-dir ${workingDir} --subject-dir ${subjectLabel}");
+my $amicoExit = system("/opt/scripts/run_noddi.py --study-dir ${workingDir} --subject-dir ${subjectLabel} --num-threads $numThreads --b0-threshold $b0Thresh");
 
 # Copy output to output root
 my @outputFileNames = qw(FIT_ICVF.nii.gz FIT_OD.nii.gz FIT_ISOVF.nii.gz FIT_dir.nii.gz config.pickle);

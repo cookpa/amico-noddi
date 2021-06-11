@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import spams
-import amico
 import argparse
 import os
 import textwrap
@@ -38,12 +36,21 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('--study-dir', help='Absolute path to base data directory', type=str)
 parser.add_argument('--subject-dir', help='Subject directory under study_dir', type=str)
-parser.add_argument('--b0-threshold', help='Any b-value below this is considered to be b=0', type=str, default=10)
+parser.add_argument('--b0-threshold', help='Any b-value below this is considered to be b=0', type=float, default=10)
+parser.add_argument('--num-threads', help='Maximum number of threads to use, set to 0 to not limit threads', type=int, default=0)
 
 args = parser.parse_args()
 
 study_dir = args.study_dir
 subject_dir = args.subject_dir
+num_threads = args.num_threads
+
+# Threading environment variables must be set before importing amico
+if (num_threads > 0):
+    os.environ['OMP_NUM_THREADS'] = str(num_threads)
+    os.environ['MKL_NUM_THREADS'] = str(num_threads)
+
+import amico
 
 # input and output paths bound to container already
 # ae = amico.Evaluation('Study01', 'Subject01')
@@ -54,6 +61,10 @@ amico.util.fsl2scheme(f'{study_dir}/{subject_dir}/DWI.bval', f'{study_dir}/{subj
 ae.load_data(dwi_filename = 'DWI.nii.gz', scheme_filename = 'DWI.scheme', mask_filename = 'MASK.nii.gz', b0_thr = args.b0_threshold)
 
 ae.set_model('NODDI')
+
+if (num_threads > 0):
+    ae.CONFIG['solver_params']['numThreads'] = num_threads
+
 
 ae.generate_kernels()
 ae.load_kernels()
