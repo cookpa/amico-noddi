@@ -6,12 +6,11 @@ Inputs:
   * DWI data in the format `/path/to/dwi.[nii.gz, bvec, bval]`
   * Brain mask (.nii.gz)
 
-Output is NODDI metrics computed via AMICO, and a pickle file produced by AMICO:
-  * FIT_ICVF.nii.gz
-  * FIT_OD.nii.gz
-  * FIT_ISOVF.nii.gz
-  * FIT_dir.nii.gz
-  * config.pickle
+Output is NODDI metrics computed via AMICO:
+  * FITxICVF.nii.gz
+  * FITxOD.nii.gz
+  * FITxISOVF.nii.gz
+  * FITxdir.nii.gz
 
 Example usage:
 
