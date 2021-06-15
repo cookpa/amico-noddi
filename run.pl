@@ -11,6 +11,10 @@ use File::Basename;
 use Getopt::Long;
 
 my $b0Thresh = 10;
+my $dIso = 3.0E-3;
+my $dPar = 1.7E-3;
+my $isExvivo = 0;
+
 my $numThreads = 1;
 my $workingDir = "";
 
@@ -36,6 +40,15 @@ my $usage = qq{
 
    --b0-threshold
      Threshold for considering measurements b=0 (default = $b0Thresh).
+
+   --csf-diffusivity
+     CSF (dIso) diffusivity in the NODDI model, in mm^2/s (default = $dIso).
+
+   --ex-vivo
+     If 1, use ex-vivo AMICO model (default = $isExvivo).
+
+   --parallel-diffusivity
+     Intracellular diffusivity parallel to neurites, in mm^2/s (default = $dPar).
 
    --work-dir
      Temp directory to copy source data and do processing. Defaults to a directory created at run time under
@@ -75,8 +88,11 @@ my ($brainMask, $dwiRoot, $outputRoot);
 GetOptions("dwi-root=s" => \$dwiRoot,
            "b0-threshold=f" => \$b0Thresh,
            "brain-mask=s" => \$brainMask,
+           "csf-diffusivity=f" => \$dIso,
+           "ex-vivo=i" => \$isExvivo,
            "num-threads=i" => \$numThreads,
            "output-root=s" => \$outputRoot,
+           "parallel-diffusivity=f" => \$dPar,
            "work-dir=s" => \$workingDir
           )
     or die("Error in command line arguments\n");
@@ -114,10 +130,19 @@ if (! -d $outputDir) {
     make_path("$outputDir");
 }
 
-my $amicoExit = system("/opt/scripts/run_noddi.py --study-dir ${workingDir} --subject-dir ${subjectLabel} --num-threads $numThreads --b0-threshold $b0Thresh");
+my $cmd = "/opt/scripts/run_noddi.py --study-dir ${workingDir} --subject-dir ${subjectLabel} " .
+            "--num-threads $numThreads --b0-threshold $b0Thresh --csf-diffusivity ${dIso} " .
+            "--parallel-diffusivity ${dPar}";
+
+if ($isExvivo > 0) {
+    $cmd = $cmd . " --ex-vivo";
+}
+
+# This does not capture SIGINT or SIGQUIT
+my $amicoExit = system($cmd);
 
 # Copy output to output root
-my @outputFileNames = qw(FIT_ICVF.nii.gz FIT_OD.nii.gz FIT_ISOVF.nii.gz FIT_dir.nii.gz config.pickle);
+my @outputFileNames = qw(FITxICVF.nii.gz FITxOD.nii.gz FITxISOVF.nii.gz FITxdir.nii.gz);
 
 foreach my $outputFileName (@outputFileNames) {
     my $outputFile = "${workingSubjectDir}/AMICO/NODDI/$outputFileName";
