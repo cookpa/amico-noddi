@@ -142,12 +142,14 @@ if ($isExvivo > 0) {
 my $amicoExit = system($cmd);
 
 # Copy output to output root
-my @outputFileNames = qw(FITxICVF.nii.gz FITxOD.nii.gz FITxISOVF.nii.gz FITxdir.nii.gz);
+my @outputFileNames = qw(FIT_ICVF.nii.gz FIT_OD.nii.gz FIT_ISOVF.nii.gz FIT_dir.nii.gz);
 
 foreach my $outputFileName (@outputFileNames) {
     my $outputFile = "${workingSubjectDir}/AMICO/NODDI/$outputFileName";
     if (-f $outputFile) {
-        system("cp $outputFile ${outputRoot}$outputFileName");
+        my $bidsFileName = $outputFileName;
+        $bidsFileName =~ s/_+/x/g;
+        system("cp $outputFile ${outputRoot}$bidsFileName");
     }
     else {
         print "ERROR: Missing expected output file $outputFileName - processing may have errors\n";
