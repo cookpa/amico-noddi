@@ -2,9 +2,16 @@
 
 import argparse
 import multiprocessing
-import numpy as np
 import os
 import textwrap
+
+# Threading environment variables must be set before importing numpy or amico
+# We set these to 1 and control threads within AMICO, this makes CPU usage
+# better track the maximum number of threads
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+
+import numpy as np
 
 # Diffusivity values for the model
 # https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0217118
@@ -88,12 +95,6 @@ print(textwrap.dedent(
     Ex vivo              :   {isExvivo}
     '''
     ))
-
-# Threading environment variables must be set before importing amico
-# We set these to 1 and control threads within AMICO, this makes CPU usage
-# better track the maximum number of threads
-os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['MKL_NUM_THREADS'] = '1'
 
 import amico
 
