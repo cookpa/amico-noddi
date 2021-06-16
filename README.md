@@ -18,9 +18,15 @@ Example usage:
 docker run -v /tmp:/tmp -v $PWD:/data/input --rm -it amico-noddi:latest \
     --dwi-root /data/input/dwi \
     --brain-mask /data/input/brain_mask.nii.gz \
-    --output-root /data/input/AMICO/AMICO_ \
-    --num-threads 2
+    --output-root /data/input/AMICO/AMICO_
 ```
+
+## Multithreading
+
+Multi-threading increases CPU usage but does not reduce the total
+computation time. Therefore, the code is single-threaded by default. For more
+details, see [this issue](https://github.com/daducci/AMICO/issues/56) on the
+AMICO site.
 
 
 ## Installed dependencies (see links for licensing info)
